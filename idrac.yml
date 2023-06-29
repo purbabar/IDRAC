@@ -1,0 +1,29 @@
+---
+- name : this to run python
+  hosts : localhost
+  gather_facts: false
+  tasks:
+    - name : run script
+      shell : python sample1.py
+      register: output
+      failed_when: "'success' not in output.stdout"
+
+    - name: set server variable
+      set_fact:
+        server: "{{ output.stdout_lines | select('match', '^lx\\w+') | first }}"
+
+    - name: print total output
+      debug:
+        var: output.stdout_lines
+
+    - name : print output
+      debug :
+        var: server
+
+    - name : send it to bash
+      shell : bash tree.sh {{ server }}
+      register: hostname
+
+    - name : print hostname
+      debug:
+        var: hostname.stdout 
